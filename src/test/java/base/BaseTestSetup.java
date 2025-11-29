@@ -13,12 +13,10 @@ public class BaseTestSetup {
 
     protected static WebDriver driver;
     protected static final String BASE_URL = "https://www.liverpoolfc.com/";
-
     // Page objects (static)
     protected static HomePage home;
     protected static LoginPage login;
     protected static RegistrationPage registration;
-
 
     @BeforeAll
     public static void setUpDriverAndPages() {

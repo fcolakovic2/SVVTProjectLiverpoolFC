@@ -1,5 +1,7 @@
 package pages;
 
+import dev.failsafe.internal.util.Assert;
+import org.junit.jupiter.api.Assertions;
 import org.openqa.selenium.*;
 import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.WebDriverWait;
@@ -22,56 +24,50 @@ public class RegistrationPage {
     private final By subscribeNo = By.xpath("//label[text()='Subscribe']/parent::div//span[text()='No']");
     private final By backToSiteButton = By.xpath("//a[@data-testid='BACK_TO_MAIN_SITE_BUTTON']");
     private final By logOutButtonAfterRegistration =  By.xpath("//a[@data-testid='SIGN_OUT_BUTTON']");
+    private final By alreadyExistingEmailError = By.xpath("//div[text()='An account with this email address already exists']");
+    private final By requiredFieldError(String fieldName) {
+        return By.xpath("//input[@name='" + fieldName + "']/parent::div/following-sibling::p[text()='This field is required']");
+    }
 
     public RegistrationPage(WebDriver driver) { this.driver = driver; }
 
-    public void finalizeRegistration(){
+    public void finalizeRegistration(boolean correctRegistrationForm){
         WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(15));
         wait.until(ExpectedConditions.visibilityOfElementLocated(submitRegistration)).click();
-        wait.until(ExpectedConditions.visibilityOfElementLocated(logOutButtonAfterRegistration));
-        wait.until(ExpectedConditions.visibilityOfElementLocated(backToSiteButton)).click();
+
+        if (correctRegistrationForm){
+            wait.until(ExpectedConditions.visibilityOfElementLocated(logOutButtonAfterRegistration));
+            wait.until(ExpectedConditions.visibilityOfElementLocated(backToSiteButton)).click();
+        }
     }
 
 
     public void selectCountry(String countryName) {
         WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(15));
 
-        // --- STEP 1: Open the dropdown safely ---
+        // 1. Open the dropdown
         WebElement dropdown = wait.until(ExpectedConditions.elementToBeClickable(country));
+        ((JavascriptExecutor) driver).executeScript("arguments[0].scrollIntoView({block:'center'});", dropdown);
+        dropdown.click();
 
-        ((JavascriptExecutor) driver).executeScript(
-                "arguments[0].scrollIntoView({block:'center'});", dropdown
-        );
+        // 2. Target the option
+        By countryOption = By.xpath("//li[contains(text(),'" + countryName + "')]");
 
-        try {
-            dropdown.click();
-        } catch (Exception e) {
-            // fallback if animation blocks click
-            ((JavascriptExecutor) driver).executeScript("arguments[0].click();", dropdown);
-        }
-
-        // --- STEP 2: Identify target option ---
-        By optionLocator = By.xpath("//li[contains(text(),'" + countryName + "')]");
-
-        // --- STEP 3: Wait for option to be visible and interactable ---
-        WebElement option = wait.until(ExpectedConditions.visibilityOfElementLocated(optionLocator));
-
-        ((JavascriptExecutor) driver).executeScript(
-                "arguments[0].scrollIntoView({block:'center'});", option
-        );
-
-        // --- STEP 4: Click option via JS to bypass overlay ---
+        // 3. Wait for clickable + scroll + JS click
         for (int i = 0; i < 5; i++) {
             try {
+                WebElement option = wait.until(ExpectedConditions.elementToBeClickable(countryOption));
+                ((JavascriptExecutor) driver).executeScript("arguments[0].scrollIntoView({block:'center'});", option);
                 ((JavascriptExecutor) driver).executeScript("arguments[0].click();", option);
                 return; // success
-            } catch (Exception retry) {
+            } catch (Exception e) {
                 try { Thread.sleep(200); } catch (InterruptedException ignored) {}
             }
         }
 
-        throw new RuntimeException("Failed to select country: " + countryName);
+        throw new RuntimeException("Could not select country: " + countryName);
     }
+
 
 
     public void setBirthDate(String birthDate) {
@@ -140,4 +136,38 @@ public class RegistrationPage {
                     .click();
         }
     }
+
+    //region Validation methods
+
+    public void validateDuplicateEmailError(){
+        boolean errorForDuplicateEmail = driver.findElement(alreadyExistingEmailError).isDisplayed();
+        Assertions.assertTrue(errorForDuplicateEmail);
+    }
+
+    public void validateFirstNameEmptyError(){
+        boolean errorForEmptyFirstName = driver.findElement(requiredFieldError("firstName")).isDisplayed();
+        Assertions.assertTrue(errorForEmptyFirstName);
+    }
+
+    public void validateLastNameEmptyError(){
+        boolean errorForEmptyLastName = driver.findElement(requiredFieldError("lastName")).isDisplayed();
+        Assertions.assertTrue(errorForEmptyLastName);
+    }
+
+    public void validateEmailEmptyError() {
+        boolean errorForEmptyEmail = driver.findElement(requiredFieldError("email")).isDisplayed();
+        Assertions.assertTrue(errorForEmptyEmail);
+    }
+
+    public void validatePasswordEmptyError() {
+        boolean errorForEmptyPassword = driver.findElement(requiredFieldError("password")).isDisplayed();
+        Assertions.assertTrue(errorForEmptyPassword);
+    }
+
+    public void validateConfirmPasswordEmptyError() {
+        boolean errorForEmptyConfirmPassword = driver.findElement(requiredFieldError("confirmPassword")).isDisplayed();
+        Assertions.assertTrue(errorForEmptyConfirmPassword);
+    }
+
+    //endregion
 }

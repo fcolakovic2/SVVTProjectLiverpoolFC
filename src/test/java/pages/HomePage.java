@@ -99,14 +99,14 @@ public class HomePage extends BaseTestSetup {
     }
 
     public void clickSignIn() {
-        acceptCookies();
-        closePopUp();
         driver.findElement(signIn).click();
     }
 
+    public void logOut() {
+        driver.findElement(logoutButton).click();
+    }
+
     public void openRegistrationPage() {
-        acceptCookies();
-        closePopUp();
         driver.findElement(joinButton).click();
         driver.findElement(languageButton).click();
     }
