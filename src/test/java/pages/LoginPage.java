@@ -10,8 +10,8 @@ public class LoginPage {
     private final By password = By.xpath("//input[@id='password']");
     private final By forgotPassword = By.xpath("//a[@data-testid='SIGN_IN_FORGOT_PASSWORD_BUTTON']");
     private final By signInBtn = By.xpath("//button[@data-testid='SIGN_IN_BUTTON']");
-    private final By registerNowBtn = By.xpath("//button[@data-testid='SIGN_IN_CREATE_ACCOUNT_BUTTON_BOTTOM']");
-    private final By redRegisterNowBtn = By.xpath("//button[@data-testid='SIGN_IN_CREATE_ACCOUNT_BUTTON_TOP']");
+    private final By registerNowBtn = By.xpath("//a[@data-testid='SIGN_IN_CREATE_ACCOUNT_BUTTON_BOTTOM']");
+    private final By redRegisterNowBtn = By.xpath("//a[@data-testid='SIGN_IN_CREATE_ACCOUNT_BUTTON_TOP']");
     public LoginPage(WebDriver driver) { this.driver = driver; }
 
     public void login(String user, String pass) {
@@ -19,6 +19,10 @@ public class LoginPage {
         driver.findElement(email).sendKeys(user);
         driver.findElement(password).sendKeys(pass);
         driver.findElement(signInBtn).click();
+    }
+
+    public void choseRegistrationPage() {
+        driver.findElement(redRegisterNowBtn).click();
     }
 
 }
