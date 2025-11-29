@@ -1,30 +1,12 @@
 package tests;
 
 import base.BaseTestSetup;
-import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import pages.RegistrationPage;
 import utils.RandomDataGenerator;
 
+
 public class RegistrationTests extends BaseTestSetup {
-    private static boolean cookiesHandled = false;
-    private static boolean loggedIn = false;
-    @BeforeEach
-    public void setupRegistrationPage() {
-        driver.get("https://www.liverpoolfc.com");
 
-        // Only handle cookies and popup on the first test
-        if (!cookiesHandled) {
-            home.acceptCookies();
-            home.closePopUp();
-            cookiesHandled = true;
-        }
-
-        if (loggedIn) {
-           home.logOut();
-        }
-    }
 
     @Test
     public void validRegistration() {
@@ -37,7 +19,7 @@ public class RegistrationTests extends BaseTestSetup {
         registration.fillRegistrationForm("Faris", "Colakovic", birthDate,
                 gender, email, "United Kingdom", password, password, true);
         registration.finalizeRegistration(true);
-        loggedIn = true;
+        BaseTestSetup.setLoggedIn(true);
         home.validateUserIsCorrectlyRegistered();
     }
 
@@ -95,6 +77,34 @@ public class RegistrationTests extends BaseTestSetup {
                 gender, email, "United Kingdom", password, password, true);
         registration.finalizeRegistration(false);
         registration.validateEmailEmptyError();
+    }
+
+    @Test
+    public void registrationWithoutPasswordShowsError() {
+        home.clickSignIn();
+        login.choseRegistrationPage();
+        String email = RandomDataGenerator.generateEmail("gmail");
+        String password = "";
+        String gender = RandomDataGenerator.generateGender();
+        String birthDate = RandomDataGenerator.generateBirthdate(18, 30);
+        registration.fillRegistrationForm("Faris", "Colakovic", birthDate,
+                gender, email, "United Kingdom", password, password, true);
+        registration.finalizeRegistration(false);
+        registration.validatePasswordEmptyError();
+    }
+
+    @Test
+    public void registrationWithoutConfirmingPasswordShowsError() {
+        home.clickSignIn();
+        login.choseRegistrationPage();
+        String email = RandomDataGenerator.generateEmail("gmail");
+        String password = RandomDataGenerator.generatePassword(10);
+        String gender = RandomDataGenerator.generateGender();
+        String birthDate = RandomDataGenerator.generateBirthdate(18, 30);
+        registration.fillRegistrationForm("Faris", "Colakovic", birthDate,
+                gender, email, "United Kingdom", password, "", true);
+        registration.finalizeRegistration(false);
+        registration.validateConfirmPasswordEmptyError();
     }
 
 

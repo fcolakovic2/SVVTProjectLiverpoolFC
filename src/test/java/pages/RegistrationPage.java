@@ -139,34 +139,40 @@ public class RegistrationPage {
 
     //region Validation methods
 
-    public void validateDuplicateEmailError(){
-        boolean errorForDuplicateEmail = driver.findElement(alreadyExistingEmailError).isDisplayed();
-        Assertions.assertTrue(errorForDuplicateEmail);
+    public void validateDuplicateEmailError() {
+        WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(10));
+        boolean errorVisible = wait.until(ExpectedConditions.visibilityOfElementLocated(alreadyExistingEmailError)).isDisplayed();
+        Assertions.assertTrue(errorVisible);
     }
 
-    public void validateFirstNameEmptyError(){
-        boolean errorForEmptyFirstName = driver.findElement(requiredFieldError("firstName")).isDisplayed();
-        Assertions.assertTrue(errorForEmptyFirstName);
+    public void validateFirstNameEmptyError() {
+        WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(10));
+        boolean errorVisible = wait.until(ExpectedConditions.visibilityOfElementLocated(requiredFieldError("firstName"))).isDisplayed();
+        Assertions.assertTrue(errorVisible);
     }
 
-    public void validateLastNameEmptyError(){
-        boolean errorForEmptyLastName = driver.findElement(requiredFieldError("lastName")).isDisplayed();
-        Assertions.assertTrue(errorForEmptyLastName);
+    public void validateLastNameEmptyError() {
+        WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(10));
+        boolean errorVisible = wait.until(ExpectedConditions.visibilityOfElementLocated(requiredFieldError("lastName"))).isDisplayed();
+        Assertions.assertTrue(errorVisible);
     }
 
     public void validateEmailEmptyError() {
-        boolean errorForEmptyEmail = driver.findElement(requiredFieldError("email")).isDisplayed();
-        Assertions.assertTrue(errorForEmptyEmail);
+        WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(10));
+        boolean errorVisible = wait.until(ExpectedConditions.visibilityOfElementLocated(requiredFieldError("email"))).isDisplayed();
+        Assertions.assertTrue(errorVisible);
     }
 
     public void validatePasswordEmptyError() {
-        boolean errorForEmptyPassword = driver.findElement(requiredFieldError("password")).isDisplayed();
-        Assertions.assertTrue(errorForEmptyPassword);
+        WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(10));
+        boolean errorVisible = wait.until(ExpectedConditions.visibilityOfElementLocated(requiredFieldError("password"))).isDisplayed();
+        Assertions.assertTrue(errorVisible);
     }
 
     public void validateConfirmPasswordEmptyError() {
-        boolean errorForEmptyConfirmPassword = driver.findElement(requiredFieldError("confirmPassword")).isDisplayed();
-        Assertions.assertTrue(errorForEmptyConfirmPassword);
+        WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(10));
+        boolean errorVisible = wait.until(ExpectedConditions.visibilityOfElementLocated(requiredFieldError("confirmPassword"))).isDisplayed();
+        Assertions.assertTrue(errorVisible);
     }
 
     //endregion
