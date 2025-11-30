@@ -21,6 +21,7 @@ public class BaseTestSetup {
     protected static LoginPage login;
     protected static RegistrationPage registration;
     protected static NewsPage news;
+    protected static ArticlePage articles;
 
     public static void setLoggedIn(boolean state) {
         loggedIn = state;
@@ -45,6 +46,7 @@ public class BaseTestSetup {
         login = new LoginPage(driver);
         registration = new RegistrationPage(driver);
         news = new NewsPage(driver);
+        articles = new ArticlePage(driver);
     }
 
     @BeforeEach

@@ -12,6 +12,8 @@ import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.WebDriverWait;
 
 import java.time.Duration;
+import java.util.ArrayList;
+import java.util.List;
 
 public class HomePage extends BaseTestSetup {
     private final WebDriver driver;
@@ -31,6 +33,8 @@ public class HomePage extends BaseTestSetup {
     private final By maybeLaterPromoPopUp = By.xpath("//button[text()='Maybe Later']");
     private final By accountButton = By.xpath("//a[text()='Account']");
     private final By logoutButton = By.xpath("//a[text()='Logout']");
+    private final By contentGridItems = By.xpath("//li[@class='content-grid-item']");
+    private final By articleTitles = By.xpath("//li[@class='content-grid-item']//h2");
 
     public HomePage(WebDriver driver) { this.driver = driver; }
 
@@ -38,17 +42,13 @@ public class HomePage extends BaseTestSetup {
         WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(10));
 
         try {
-            // 1. Wait for the cookie button to appear and be visible
             WebElement btn = wait.until(ExpectedConditions.visibilityOfElementLocated(acceptCookiesBtn));
 
-            // 2. Scroll it into view (handles animations)
             ((JavascriptExecutor) driver)
                     .executeScript("arguments[0].scrollIntoView({block:'center'});", btn);
 
-            // 3. Small pause to allow fade-in / slide-in animation
             Thread.sleep(300);
 
-            // 4. Click using JS to bypass overlay / animation issues
             ((JavascriptExecutor) driver).executeScript("arguments[0].click();", btn);
 
         } catch (Exception ignored) {
@@ -80,18 +80,14 @@ public class HomePage extends BaseTestSetup {
         WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(10));
 
         try {
-            // 1. Wait until popup is visible
             WebElement popup = wait.until(
                     ExpectedConditions.visibilityOfElementLocated(maybeLaterPromoPopUp)
             );
 
-            // 2. Wait until animation finishes (element stops moving)
             waitUntilElementStopsMoving(popup);
 
-            // 3. Ensure it's clickable
             wait.until(ExpectedConditions.elementToBeClickable(popup));
 
-            // 4. JS click avoids hitbox issues during animation
             ((JavascriptExecutor) driver).executeScript("arguments[0].click();", popup);
 
         } catch (Exception ignored) {
@@ -148,6 +144,23 @@ public class HomePage extends BaseTestSetup {
         actions.moveToElement(lang).pause(Duration.ofMillis(100)).click().perform();
     }
 
+    public void openArticleByIndex(int index) {
+        WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(10));
+
+        // Get all li elements
+        List<WebElement> allItems = wait.until(ExpectedConditions.visibilityOfAllElementsLocatedBy(articleTitles));
+
+        wait.until(ExpectedConditions.elementToBeClickable(allItems.get(index))).click();
+        wait.until(ExpectedConditions.urlContains("news"));
+    }
+
+
+    public String getHomeArticleTitle(int index) {
+        WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(10));
+        List<WebElement> articleTitlesElements = wait.until(ExpectedConditions.visibilityOfAllElementsLocatedBy(articleTitles));
+        return articleTitlesElements.get(index).getText();
+    }
+
     //region ValidationMethods
 
     public void validateUserIsCorrectlyLoggedInAfterRegistering(){
@@ -193,6 +206,12 @@ public class HomePage extends BaseTestSetup {
 
         Assertions.assertTrue(acc.isDisplayed());
         Assertions.assertTrue(log.isDisplayed());
+    }
+
+    public void validateThereAreHomePageArticles(){
+        WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(10));
+        List<WebElement> contentItems = wait.until(ExpectedConditions.visibilityOfAllElementsLocatedBy(contentGridItems));
+        Assertions.assertFalse(contentItems.isEmpty(), "There are no home page articles");
     }
 
     //endregion
