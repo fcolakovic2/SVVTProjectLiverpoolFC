@@ -21,32 +21,33 @@ public class LoginPage {
     public LoginPage(WebDriver driver) { this.driver = driver; }
 
     public void login(String user, String pass) {
-        if (!driver.findElements(email).isEmpty()) driver.findElement(email).clear();
-        driver.findElement(email).sendKeys(user);
-        driver.findElement(password).sendKeys(pass);
-        driver.findElement(signInBtn).click();
+        WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(10));
+
+        wait.until(ExpectedConditions.visibilityOfElementLocated(email)).sendKeys(user);
+        wait.until(ExpectedConditions.visibilityOfElementLocated(password)).sendKeys(pass);
+        wait.until(ExpectedConditions.visibilityOfElementLocated(signInBtn)).click();
     }
 
     public void choseRegistrationPage() {
         WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(10));
-        wait.until(ExpectedConditions.visibilityOf(driver.findElement(registerNowBtn))).click();
+        wait.until(ExpectedConditions.visibilityOfElementLocated(registerNowBtn)).click();
     }
 
     public void clickForgetPassword(){
         WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(10));
-        wait.until(ExpectedConditions.visibilityOf(driver.findElement(forgotPassword))).click();
+        wait.until(ExpectedConditions.visibilityOfElementLocated(forgotPassword)).click();
     }
 
     //region Validation
 
     public void validateUserCredentialsAreWrong(){
         WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(10));
-        wait.until(ExpectedConditions.visibilityOf(driver.findElement(userPwNotRecognised)));
+        wait.until(ExpectedConditions.visibilityOfElementLocated(userPwNotRecognised));
     }
 
     public void validateUserIsOnResetPasswordPage(){
         WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(10));
-        wait.until(ExpectedConditions.visibilityOf(driver.findElement(resetPasswordPageText)));
+        wait.until(ExpectedConditions.visibilityOfElementLocated(resetPasswordPageText));
     }
 
     //endregion

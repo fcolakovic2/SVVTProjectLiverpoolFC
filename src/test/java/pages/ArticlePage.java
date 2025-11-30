@@ -15,6 +15,8 @@ public class ArticlePage {
     private WebDriverWait wait;
 
     private final By articleTitleH1 = By.tagName("h1");
+    private final By articleTimePublished = By.xpath("//span[contains(text(),'Published')]//span");
+    private final By articleImage = By.xpath("//h1/parent::div/preceding-sibling::div//img");
 
     public ArticlePage(WebDriver driver) {
         this.driver = driver;
@@ -34,6 +36,33 @@ public class ArticlePage {
                 expectedTitle,
                 actualTitle,
                 "Article title in <h1> does not match expected title!"
+        );
+    }
+
+    public void validateCorrectArticlePublishedTime(String expectedTime){
+        WebElement timeElement = wait.until(
+                ExpectedConditions.visibilityOfElementLocated(articleTimePublished)
+        );
+
+        String actualTime = timeElement.getText().toLowerCase();
+
+        Assertions.assertEquals(
+                expectedTime,
+                actualTime,
+                "Article published time in <span> does not match expected published time!"
+        );
+    }
+
+    public void validateCorrectImage(String expectedImage){
+        WebElement timeElement = wait.until(
+                ExpectedConditions.visibilityOfElementLocated(articleImage)
+        );
+
+        String actualImage = timeElement.getAttribute("alt");
+        Assertions.assertEquals(
+                expectedImage,
+                actualImage,
+                "Article image alt does not match expected image alt from home page!"
         );
     }
 

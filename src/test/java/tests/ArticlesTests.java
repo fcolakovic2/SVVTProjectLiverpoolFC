@@ -6,12 +6,6 @@ import org.junit.jupiter.api.Test;
 
 public class ArticlesTests extends BaseTestSetup {
 
-    @BeforeAll
-    public static void setCookiesAndLogin(){
-        setLoggedIn(false);
-        setCookiesHandled(false);
-    }
-
     @Test
     public void validateThereIsAtLeast1Article() {
       home.validateThereAreHomePageArticles();
@@ -23,6 +17,30 @@ public class ArticlesTests extends BaseTestSetup {
         String expectedTitle = home.getHomeArticleTitle(1);
         home.openArticleByIndex(1);
         articles.validateCorrectArticleTitle(expectedTitle);
+    }
+
+    @Test
+    public void validateArticleType() {
+        home.validateThereAreHomePageArticles();
+        String expectedTitle = home.getHomeArticleTitle(1);
+        home.openArticleByIndex(1);
+        articles.validateCorrectArticleTitle(expectedTitle);
+    }
+
+    @Test
+    public void validateArticlePublishedTime() {
+        home.validateThereAreHomePageArticles();
+        String expectedTime = home.getHomeArticleTime(1).toLowerCase();
+        home.openArticleByIndex(1);
+        articles.validateCorrectArticlePublishedTime(expectedTime);
+    }
+
+    @Test
+    public void validateArticleImage() {
+        home.validateThereAreHomePageArticles();
+        String expectedImageAlt = home.getHomeImageAlt(1);
+        home.openArticleByIndex(1);
+        articles.validateCorrectImage(expectedImageAlt);
     }
 
 }

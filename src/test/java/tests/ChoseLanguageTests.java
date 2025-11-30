@@ -6,12 +6,6 @@ import org.junit.jupiter.api.Test;
 
 public class ChoseLanguageTests extends BaseTestSetup {
 
-    @BeforeAll
-    public static void setCookiesAndLogin(){
-        setLoggedIn(false);
-        setCookiesHandled(false);
-    }
-
     @Test
     public void changeLanguageToGermanAndValidateChanges() {
         home.openLanguageDropdown();

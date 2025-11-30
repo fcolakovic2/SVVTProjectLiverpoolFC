@@ -9,11 +9,6 @@ import utils.RandomDataGenerator;
 
 public class RegistrationTests extends BaseTestSetup {
 
-    @BeforeAll
-    public static void setCookiesAndLogin(){
-        setLoggedIn(false);
-        setCookiesHandled(false);
-    }
 
     @Test
     public void validRegistration() {

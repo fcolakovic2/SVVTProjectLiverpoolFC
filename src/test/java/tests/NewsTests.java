@@ -6,12 +6,6 @@ import org.junit.jupiter.api.Test;
 
 public class NewsTests extends BaseTestSetup {
 
-    @BeforeAll
-    public static void setCookiesAndLogin(){
-        setLoggedIn(false);
-        setCookiesHandled(false);
-    }
-
     @Test
     public void openNewsPageAndValidateFilterForAllNews() {
         home.clickOnSection("News");

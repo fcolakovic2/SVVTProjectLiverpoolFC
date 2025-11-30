@@ -22,6 +22,7 @@ public class BaseTestSetup {
     protected static RegistrationPage registration;
     protected static NewsPage news;
     protected static ArticlePage articles;
+    protected static VideoPage videos;
 
     public static void setLoggedIn(boolean state) {
         loggedIn = state;
@@ -34,36 +35,55 @@ public class BaseTestSetup {
         return loggedIn;
     }
 
-    @BeforeAll
-    public static void setUpDriverAndPages() {
-        WebDriverManager.chromedriver().setup();
-        driver = new ChromeDriver();
-        driver.manage().window().maximize();
-        driver.manage().timeouts().implicitlyWait(Duration.ofSeconds(10));
+    public void safeGet(WebDriver driver, String url) {
+        int maxRetries = 3;
 
-        // Initialize page objects
+        for (int i = 1; i <= maxRetries; i++) {
+            try {
+                driver.get(url);
+
+                // If the page loads enough to have a title, assume success
+                if (!driver.getTitle().isEmpty()) {
+                    return;
+                }
+            } catch (Exception e) {
+                System.out.println("Attempt " + i + " failed: " + e.getMessage());
+            }
+
+            // If stuck or failed, try to refresh before next attempt
+            try {
+                driver.navigate().refresh();
+            } catch (Exception ignored) {}
+
+            // Small wait between attempts
+            try { Thread.sleep(2000); } catch (InterruptedException ignored) {}
+        }
+
+        // If all attempts failed
+        throw new RuntimeException("Failed to load URL after retries: " + url);
+    }
+
+    @BeforeEach
+    public void setupTest() {
+        driver.manage().deleteAllCookies();
+        driver.navigate().to(BASE_URL);
+
         home = new HomePage(driver);
         login = new LoginPage(driver);
         registration = new RegistrationPage(driver);
         news = new NewsPage(driver);
         articles = new ArticlePage(driver);
+        videos = new VideoPage(driver);
+
+        home.acceptCookiesIfPresent();
+        home.closePopupIfPresent();
     }
 
-    @BeforeEach
-    public void goToHome() {
-        driver.get(BASE_URL);
-
-        // Only handle cookies and popup on the first test
-        if (!cookiesHandled) {
-            home.acceptCookies();
-            home.closePopUp();
-            cookiesHandled = true;
-        }
-
-        if (loggedIn) {
-            home.logOut();
-            loggedIn = false;
-        }
+    @BeforeAll
+    public static void setUpDriverAndPages() {
+        WebDriverManager.chromedriver().setup();
+        driver = new ChromeDriver();
+        driver.manage().window().maximize();
     }
 
     @AfterAll

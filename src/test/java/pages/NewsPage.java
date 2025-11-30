@@ -40,6 +40,12 @@ public class NewsPage {
         category.click();
     }
 
+    public void openNewsSubSection(String subSection){
+        wait.until(ExpectedConditions.visibilityOfElementLocated(categoryInInitialDropdownSubSection(subSection))).click();
+    }
+
+    //region Validation
+
     public void validateCorrectTabIsOpened(String categoryName) {
         WebElement category = wait.until(ExpectedConditions.visibilityOfElementLocated(categoryTab(categoryName)));
         boolean visibleCorrectCategory = category.isDisplayed();
@@ -52,7 +58,5 @@ public class NewsPage {
         Assertions.assertEquals(expectedUrl, actualUrl, "Current URL is not as expected!");
     }
 
-    public void openNewsSubSection(String subSection){
-        wait.until(ExpectedConditions.visibilityOfElementLocated(categoryInInitialDropdownSubSection(subSection))).click();
-    }
+    //endregion
 }

@@ -3,10 +3,7 @@ package pages;
 import base.BaseTestSetup;
 import com.fasterxml.jackson.databind.ser.Serializers;
 import org.junit.jupiter.api.Assertions;
-import org.openqa.selenium.By;
-import org.openqa.selenium.JavascriptExecutor;
-import org.openqa.selenium.WebDriver;
-import org.openqa.selenium.WebElement;
+import org.openqa.selenium.*;
 import org.openqa.selenium.interactions.Actions;
 import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.WebDriverWait;
@@ -34,27 +31,39 @@ public class HomePage extends BaseTestSetup {
     private final By accountButton = By.xpath("//a[text()='Account']");
     private final By logoutButton = By.xpath("//a[text()='Logout']");
     private final By contentGridItems = By.xpath("//li[@class='content-grid-item']");
-    private final By articleTitles = By.xpath("//li[@class='content-grid-item']//h2");
-
+    private final By articleTitles = By.xpath("//li[@class='content-grid-item']//h2[not(contains(text(),'Video'))]");
+    private final By articleTimes = By.xpath("//li[@class='content-grid-item']//time//span");
+    private final By articleImages = By.xpath("//li[@class='content-grid-item']//img");
     public HomePage(WebDriver driver) { this.driver = driver; }
 
-    public void acceptCookies() {
-        WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(10));
-
+    public void acceptCookiesIfPresent() {
         try {
-            WebElement btn = wait.until(ExpectedConditions.visibilityOfElementLocated(acceptCookiesBtn));
+            WebDriverWait shortWait = new WebDriverWait(driver, Duration.ofSeconds(5));
 
-            ((JavascriptExecutor) driver)
-                    .executeScript("arguments[0].scrollIntoView({block:'center'});", btn);
-
-            Thread.sleep(300);
+            WebElement btn = shortWait.until(ExpectedConditions.visibilityOfElementLocated(acceptCookiesBtn));
 
             ((JavascriptExecutor) driver).executeScript("arguments[0].click();", btn);
 
-        } catch (Exception ignored) {
-            // Cookie banner did not appear — safe to ignore
+
+        } catch (TimeoutException ignored) {
+            // No cookie banner within 2s → ignore
         }
     }
+
+    public void closePopupIfPresent() {
+        try {
+            WebDriverWait shortWait = new WebDriverWait(driver, Duration.ofSeconds(5));
+
+            WebElement popup = shortWait.until(ExpectedConditions.visibilityOfElementLocated(maybeLaterPromoPopUp));
+
+            ((JavascriptExecutor) driver).executeScript("arguments[0].click();", popup);
+
+        } catch (TimeoutException ignored) {
+            // Popup never appeared → fine
+        }
+    }
+
+
 
 
     private void waitUntilElementStopsMoving(WebElement element) {
@@ -73,25 +82,6 @@ public class HomePage extends BaseTestSetup {
             }
 
         } catch (InterruptedException ignored) {
-        }
-    }
-
-    public void closePopUp() {
-        WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(10));
-
-        try {
-            WebElement popup = wait.until(
-                    ExpectedConditions.visibilityOfElementLocated(maybeLaterPromoPopUp)
-            );
-
-            waitUntilElementStopsMoving(popup);
-
-            wait.until(ExpectedConditions.elementToBeClickable(popup));
-
-            ((JavascriptExecutor) driver).executeScript("arguments[0].click();", popup);
-
-        } catch (Exception ignored) {
-            // Popup did not appear — safe to ignore
         }
     }
 
@@ -161,6 +151,18 @@ public class HomePage extends BaseTestSetup {
         return articleTitlesElements.get(index).getText();
     }
 
+    public String getHomeArticleTime(int index) {
+        WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(10));
+        List<WebElement> articleTimesElements = wait.until(ExpectedConditions.visibilityOfAllElementsLocatedBy(articleTimes));
+        return articleTimesElements.get(index).getText();
+    }
+
+    public String getHomeImageAlt(int index) {
+        WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(10));
+        List<WebElement> articleTimesElements = wait.until(ExpectedConditions.visibilityOfAllElementsLocatedBy(articleImages));
+        return articleTimesElements.get(index).getAttribute("alt");
+    }
+
     //region ValidationMethods
 
     public void validateUserIsCorrectlyLoggedInAfterRegistering(){
@@ -170,6 +172,7 @@ public class HomePage extends BaseTestSetup {
 
        Assertions.assertTrue(account.isDisplayed(), "Account button not displayed!");
        Assertions.assertTrue(logout.isDisplayed(), "Logout button not displayed!");
+       home.logOut();
     }
 
     public void validateUserIsNotLoggedIn(){
