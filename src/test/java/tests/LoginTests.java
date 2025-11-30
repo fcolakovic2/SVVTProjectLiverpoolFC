@@ -2,29 +2,45 @@ package tests;
 
 import base.BaseTestSetup;
 import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import pages.HomePage;
 import pages.LoginPage;
 
 public class LoginTests extends BaseTestSetup {
 
+    @BeforeAll
+    public static void setCookiesAndLogin(){
+        setLoggedIn(false);
+        setCookiesHandled(false);
+    }
+
     @Test
     public void validLogin() {
         home.clickSignIn();
-        login.login("validuser@example.com", "ValidPass123"); // testing purposes
-        Assertions.assertTrue(driver.getCurrentUrl().contains("account") || driver.getTitle().toLowerCase().contains("account"));
+        login.login("fariscolakovic00@gmail.com", "hBSBR!LKDsna1");
+        BaseTestSetup.setLoggedIn(true);
+        home.validateUserIsCorrectlyLoggedInAfterRegistering();
     }
 
     @Test
     public void invalidPasswordShowsError() {
         home.clickSignIn();
-        LoginPage login = new LoginPage(driver);
-        login.login("validuser@example.com", "wrongpass");
+        login.login("fariscolakovic00@gmail.com", "wrongpass");
+        home.validateUserIsNotLoggedIn();
     }
 
     @Test
-    public void emptyFieldsValidation() {
+    public void invalidEmailShowsError() {
         home.clickSignIn();
-        login.login("", "");
+        login.login("fariscolakovic0@gmail.com", "hBSBR!LKDsna1");
+        home.validateUserIsNotLoggedIn();
+    }
+
+    @Test
+    public void navigatingToPasswordResetThroughLoginPage () {
+        home.clickSignIn();
+        login.clickForgetPassword();
+        login.validateUserIsOnResetPasswordPage();
     }
 }

@@ -7,6 +7,7 @@ import org.openqa.selenium.By;
 import org.openqa.selenium.JavascriptExecutor;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
+import org.openqa.selenium.interactions.Actions;
 import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.WebDriverWait;
 
@@ -17,14 +18,14 @@ public class HomePage extends BaseTestSetup {
 
     private final By signIn = By.xpath("//button[text()='Login']");
     private final By homePageLogo = By.xpath("//a[@class='Skip to main content']");
-    private final By newsSection = By.xpath("//button[text()='News']");
-    private final By fixturesTeamsSection = By.xpath("//button[text()='Fixtures & Teams']");
-    private final By ticketsBookingSection = By.xpath("//button[text()='Tickets & Booking']");
-    private final By shopSection = By.xpath("//button[text()='Shop']");
-    private final By videoSection = By.xpath("//button[text()='Video']");
-    private final By moreSection = By.xpath("//button[text()='More']");
+    private By getSectionByName(String sectionName) {
+        return By.xpath("//button[text()='" + sectionName + "']");
+    }
     private final By joinButton = By.xpath("//button[text()='Join']");
     private final By languageButton = By.xpath("//button[text()='en']");
+    private By languageOption(String langText) {
+        return By.xpath("//a[text()='" + langText + "']");
+    }
     private final By sponsorshipLogo = By.xpath("//img[@src='/standard-chartered.webp']//following-sibling::span[text()='Standard Chartered']");
     private final By acceptCookiesBtn = By.xpath("//button[text()='Accept All Cookies']");
     private final By maybeLaterPromoPopUp = By.xpath("//button[text()='Maybe Later']");
@@ -108,20 +109,90 @@ public class HomePage extends BaseTestSetup {
         wait.until(ExpectedConditions.visibilityOfElementLocated(logoutButton)).click();
     }
 
-    public void openRegistrationPage() {
-        driver.findElement(joinButton).click();
-        driver.findElement(languageButton).click();
+    public void clickOnSection(String sectionName) {
+        WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(10));
+        wait.until(ExpectedConditions.visibilityOfElementLocated(getSectionByName(sectionName))).click();
+    }
+
+    public void hoverOverSection(String sectionName) {
+        WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(10));
+        WebElement section = wait.until(ExpectedConditions.visibilityOfElementLocated(getSectionByName(sectionName)));
+        Actions actions = new Actions(driver);
+        actions.moveToElement(section).perform();
+    }
+
+    public void openLanguageDropdown() {
+        WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(10));
+        Actions actions = new Actions(driver);
+        WebElement langDropDown = wait.until(ExpectedConditions.visibilityOfElementLocated(languageButton));
+        actions.moveToElement(langDropDown).pause(Duration.ofMillis(150)).click().perform();
+    }
+
+    public void selectLanguage(String languageText) {
+        // 1. Hover on EN button and keep it open
+        WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(10));
+
+        WebElement menuButton = wait.until(
+                ExpectedConditions.visibilityOfElementLocated(languageButton)
+        );
+
+        Actions actions = new Actions(driver);
+        actions.moveToElement(menuButton).perform();
+
+        // 2. Wait for the dropdown <a> to appear
+        WebElement lang = wait.until(
+                ExpectedConditions.visibilityOfElementLocated(languageOption(languageText))
+        );
+
+        // 3. Move to the actual language item (keeps dropdown open)
+        actions.moveToElement(lang).pause(Duration.ofMillis(100)).click().perform();
     }
 
     //region ValidationMethods
 
-    public void validateUserIsCorrectlyRegistered(){
+    public void validateUserIsCorrectlyLoggedInAfterRegistering(){
        WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(10));
        WebElement account = wait.until(ExpectedConditions.visibilityOfElementLocated(accountButton));
        WebElement logout = wait.until(ExpectedConditions.elementToBeClickable(logoutButton));
 
        Assertions.assertTrue(account.isDisplayed(), "Account button not displayed!");
        Assertions.assertTrue(logout.isDisplayed(), "Logout button not displayed!");
+    }
+
+    public void validateUserIsNotLoggedIn(){
+
+        boolean accountNotVisible =
+                driver.findElements(accountButton)
+                        .stream()
+                        .noneMatch(WebElement::isDisplayed);
+
+        boolean logoutNotVisible =
+                driver.findElements(logoutButton)
+                        .stream()
+                        .noneMatch(WebElement::isDisplayed);
+
+        Assertions.assertTrue(accountNotVisible, "Account button IS visible!");
+        Assertions.assertTrue(logoutNotVisible, "Logout button IS visible!");
+    }
+
+    public void validateUrlEndsWith(String languageCode) {
+        WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(10));
+        wait.until(ExpectedConditions.urlContains("/" + languageCode));
+        Assertions.assertTrue(
+                driver.getCurrentUrl().endsWith("/" + languageCode),
+                "URL does not end with /" + languageCode
+        );
+    }
+
+    public void validateAccountAndLoginButtons(String accountText, String loginText) {
+        WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(10));
+        WebElement acc = wait.until(ExpectedConditions.visibilityOfElementLocated(
+                By.xpath("//button[text()='" + accountText + "']")));
+        WebElement log = wait.until(ExpectedConditions.visibilityOfElementLocated(
+                By.xpath("//button[text()='" + loginText + "']")));
+
+        Assertions.assertTrue(acc.isDisplayed());
+        Assertions.assertTrue(log.isDisplayed());
     }
 
     //endregion

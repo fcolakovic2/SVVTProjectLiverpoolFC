@@ -20,9 +20,13 @@ public class BaseTestSetup {
     protected static HomePage home;
     protected static LoginPage login;
     protected static RegistrationPage registration;
+    protected static NewsPage news;
 
     public static void setLoggedIn(boolean state) {
         loggedIn = state;
+    }
+    public static void setCookiesHandled(boolean state) {
+        cookiesHandled = state;
     }
 
     public static boolean isLoggedIn() {
@@ -40,6 +44,7 @@ public class BaseTestSetup {
         home = new HomePage(driver);
         login = new LoginPage(driver);
         registration = new RegistrationPage(driver);
+        news = new NewsPage(driver);
     }
 
     @BeforeEach

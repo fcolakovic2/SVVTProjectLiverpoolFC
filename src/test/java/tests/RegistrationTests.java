@@ -1,12 +1,19 @@
 package tests;
 
 import base.BaseTestSetup;
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import utils.RandomDataGenerator;
 
 
 public class RegistrationTests extends BaseTestSetup {
 
+    @BeforeAll
+    public static void setCookiesAndLogin(){
+        setLoggedIn(false);
+        setCookiesHandled(false);
+    }
 
     @Test
     public void validRegistration() {
@@ -20,7 +27,7 @@ public class RegistrationTests extends BaseTestSetup {
                 gender, email, "United Kingdom", password, password, true);
         registration.finalizeRegistration(true);
         BaseTestSetup.setLoggedIn(true);
-        home.validateUserIsCorrectlyRegistered();
+        home.validateUserIsCorrectlyLoggedInAfterRegistering();
     }
 
     @Test
