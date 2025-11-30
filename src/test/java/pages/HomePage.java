@@ -99,11 +99,13 @@ public class HomePage extends BaseTestSetup {
     }
 
     public void clickSignIn() {
-        driver.findElement(signIn).click();
+        WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(10));
+        wait.until(ExpectedConditions.visibilityOfElementLocated(signIn)).click();
     }
 
     public void logOut() {
-        driver.findElement(logoutButton).click();
+        WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(10));
+        wait.until(ExpectedConditions.visibilityOfElementLocated(logoutButton)).click();
     }
 
     public void openRegistrationPage() {

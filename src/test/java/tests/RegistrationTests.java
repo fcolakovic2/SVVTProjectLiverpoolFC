@@ -38,6 +38,20 @@ public class RegistrationTests extends BaseTestSetup {
     }
 
     @Test
+    public void registrationWithIncorrectEmailShowsError() {
+        home.clickSignIn();
+        login.choseRegistrationPage();
+        String email = "fariscolakovic00gmail.com";
+        String password = RandomDataGenerator.generatePassword(10);
+        String gender = RandomDataGenerator.generateGender();
+        String birthDate = RandomDataGenerator.generateBirthdate(18, 30);
+        registration.fillRegistrationForm("Faris", "Colakovic", birthDate,
+                gender, email, "United Kingdom", password, password, true);
+        registration.finalizeRegistration(false);
+        registration.validateWrongEmailFormatError();
+    }
+
+    @Test
     public void registrationWithoutFirstNameShowsError() {
         home.clickSignIn();
         login.choseRegistrationPage();
@@ -49,6 +63,20 @@ public class RegistrationTests extends BaseTestSetup {
                 gender, email, "United Kingdom", password, password, true);
         registration.finalizeRegistration(false);
         registration.validateFirstNameEmptyError();
+    }
+
+    @Test
+    public void registrationWithoutDateShowsError() {
+        home.clickSignIn();
+        login.choseRegistrationPage();
+        String email = RandomDataGenerator.generateEmail("gmail");
+        String password = RandomDataGenerator.generatePassword(10);
+        String gender = RandomDataGenerator.generateGender();
+        String birthDate = "";
+        registration.fillRegistrationForm("Faris", "Colakovic", birthDate,
+                gender, email, "United Kingdom", password, password, true);
+        registration.finalizeRegistration(false);
+        registration.validateDateOfBirthEmptyError();
     }
 
     @Test
@@ -105,6 +133,20 @@ public class RegistrationTests extends BaseTestSetup {
                 gender, email, "United Kingdom", password, "", true);
         registration.finalizeRegistration(false);
         registration.validateConfirmPasswordEmptyError();
+    }
+
+    @Test
+    public void registrationWithoutMatchingConfirmedPasswordShowsError() {
+        home.clickSignIn();
+        login.choseRegistrationPage();
+        String email = RandomDataGenerator.generateEmail("gmail");
+        String password = RandomDataGenerator.generatePassword(10);
+        String gender = RandomDataGenerator.generateGender();
+        String birthDate = RandomDataGenerator.generateBirthdate(18, 30);
+        registration.fillRegistrationForm("Faris", "Colakovic", birthDate,
+                gender, email, "United Kingdom", password, "test!ABC123", true);
+        registration.finalizeRegistration(false);
+        registration.validatePasswordsNotMatchingError();
     }
 
 

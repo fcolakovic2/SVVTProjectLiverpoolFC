@@ -55,6 +55,7 @@ public class BaseTestSetup {
 
         if (loggedIn) {
             home.logOut();
+            loggedIn = false;
         }
     }
 

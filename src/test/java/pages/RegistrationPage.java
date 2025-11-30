@@ -25,6 +25,9 @@ public class RegistrationPage {
     private final By backToSiteButton = By.xpath("//a[@data-testid='BACK_TO_MAIN_SITE_BUTTON']");
     private final By logOutButtonAfterRegistration =  By.xpath("//a[@data-testid='SIGN_OUT_BUTTON']");
     private final By alreadyExistingEmailError = By.xpath("//div[text()='An account with this email address already exists']");
+    private final By wrongEmailError = By.xpath("//p[text()='A valid email is required']");
+    private final By requiredDateOfBirthError = By.xpath("//label[text()='Date of Birth']/following-sibling::p[text()='This field is required']");
+    private final By passwordsNotMatchingError = By.xpath("//p[text()='Passwords must match']");
     private final By requiredFieldError(String fieldName) {
         return By.xpath("//input[@name='" + fieldName + "']/parent::div/following-sibling::p[text()='This field is required']");
     }
@@ -151,6 +154,12 @@ public class RegistrationPage {
         Assertions.assertTrue(errorVisible);
     }
 
+    public void validateDateOfBirthEmptyError() {
+        WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(10));
+        boolean errorVisible = wait.until(ExpectedConditions.visibilityOfElementLocated(requiredDateOfBirthError)).isDisplayed();
+        Assertions.assertTrue(errorVisible);
+    }
+
     public void validateLastNameEmptyError() {
         WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(10));
         boolean errorVisible = wait.until(ExpectedConditions.visibilityOfElementLocated(requiredFieldError("lastName"))).isDisplayed();
@@ -172,6 +181,18 @@ public class RegistrationPage {
     public void validateConfirmPasswordEmptyError() {
         WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(10));
         boolean errorVisible = wait.until(ExpectedConditions.visibilityOfElementLocated(requiredFieldError("confirmPassword"))).isDisplayed();
+        Assertions.assertTrue(errorVisible);
+    }
+
+    public void validateWrongEmailFormatError() {
+        WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(10));
+        boolean errorVisible = wait.until(ExpectedConditions.visibilityOfElementLocated(wrongEmailError)).isDisplayed();
+        Assertions.assertTrue(errorVisible);
+    }
+
+    public void validatePasswordsNotMatchingError() {
+        WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(10));
+        boolean errorVisible = wait.until(ExpectedConditions.visibilityOfElementLocated(passwordsNotMatchingError)).isDisplayed();
         Assertions.assertTrue(errorVisible);
     }
 
