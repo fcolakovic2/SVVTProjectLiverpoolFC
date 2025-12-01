@@ -17,8 +17,16 @@ public class HomePageNavigationTests extends BaseTestSetup {
     @Test
     public void openVideoPageAndValidateNavigation() {
         home.clickOnSection("Video");
-        news.openNewsSubSection("Video");
+        news.openNewsSubSection("Browse");
         videos.validateCurrentUrl();
+    }
+
+    @Test
+    public void openProfilePageAndValidateNavigation() {
+        home.clickSignIn();
+        login.login("fariscolakovic00@gmail.com", "hBSBR!LKDsna1");
+        home.openAccountSettings();
+        profile.validateCurrentUrl();
     }
 
 

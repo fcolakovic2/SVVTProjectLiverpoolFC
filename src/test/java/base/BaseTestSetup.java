@@ -5,6 +5,7 @@ import org.junit.jupiter.api.*;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.chrome.ChromeDriver;
+import org.openqa.selenium.chrome.ChromeOptions;
 import pages.*;
 
 import java.time.Duration;
@@ -23,6 +24,7 @@ public class BaseTestSetup {
     protected static NewsPage news;
     protected static ArticlePage articles;
     protected static VideoPage videos;
+    protected static ProfilePage profile;
 
     public static void setLoggedIn(boolean state) {
         loggedIn = state;
@@ -65,7 +67,6 @@ public class BaseTestSetup {
 
     @BeforeEach
     public void setupTest() {
-        driver.manage().deleteAllCookies();
         driver.navigate().to(BASE_URL);
 
         home = new HomePage(driver);
@@ -74,15 +75,17 @@ public class BaseTestSetup {
         news = new NewsPage(driver);
         articles = new ArticlePage(driver);
         videos = new VideoPage(driver);
+        profile = new ProfilePage(driver);
 
         home.acceptCookiesIfPresent();
         home.closePopupIfPresent();
     }
 
-    @BeforeAll
-    public static void setUpDriverAndPages() {
+    @BeforeAll public static void setUpDriverAndPages() {
         WebDriverManager.chromedriver().setup();
-        driver = new ChromeDriver();
+        ChromeOptions  options = new ChromeOptions();
+        options.addArguments("--incognito");
+        driver = new ChromeDriver(options);
         driver.manage().window().maximize();
     }
 

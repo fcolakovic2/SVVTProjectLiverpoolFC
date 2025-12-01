@@ -1,9 +1,12 @@
 package tests;
 
 import base.BaseTestSetup;
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
 public class VideoTests extends BaseTestSetup {
+
 
     @Test
     public void openVideosPageAndValidateVideoCategories() {
@@ -40,6 +43,7 @@ public class VideoTests extends BaseTestSetup {
         home.clickOnSection("Video");
         videos.openVideosSubSection("Browse");
         videos.validateCurrentUrl();
+        videos.closeMarketingPopUp();
         videos.loadMoreVideos();
         videos.validateNumberOfVideosInTheList(24);
     }

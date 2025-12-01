@@ -1,9 +1,7 @@
 package pages;
 
 import org.junit.jupiter.api.Assertions;
-import org.openqa.selenium.By;
-import org.openqa.selenium.WebDriver;
-import org.openqa.selenium.WebElement;
+import org.openqa.selenium.*;
 import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.WebDriverWait;
 
@@ -24,6 +22,10 @@ public class VideoPage {
     private final By numberOfVideoResults = By.xpath("//p[@class='listing__result-count']//span");
     private final By sectionForListOfVideos = By.xpath("//section[@class='listing']//article");
     private final By loadMoreButton = By.xpath("//div[@class='button-slice listing__more']//button");
+    private final By closeMarketingPopUp = By.xpath("//*[@class='marketing-popup__close']");
+    private final By videos = By.xpath("//section[@class='listing']//article");
+    private final By videoPlaying = By.xpath("//video[contains(@data-setup, '\"autoplay\":\"auto\"')]");
+    private final By videoCategory = By.xpath("//p[@class='viewer-container__categories']");
     private final By categoryInInitialDropdownSubSection(String categoryName) {
         return By.xpath("//a[text()='" + categoryName + "']");
     }
@@ -36,12 +38,108 @@ public class VideoPage {
     }
 
     public void openVideosSubSection(String subSection){
-        wait.until(ExpectedConditions.visibilityOfElementLocated(categoryInInitialDropdownSubSection(subSection))).click();
+        wait.until(ExpectedConditions.visibilityOf(driver.findElement(categoryInInitialDropdownSubSection(subSection)))).click();
     }
 
     public void loadMoreVideos(){
         wait.until(ExpectedConditions.visibilityOfElementLocated(loadMoreButton)).click();
+
     }
+
+    public void closeMarketingPopUp() {
+        try {
+            WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(5));
+
+            WebElement closeBtn = wait.until(
+                    ExpectedConditions.elementToBeClickable(closeMarketingPopUp)
+            );
+
+            ((JavascriptExecutor) driver).executeScript(
+                    "arguments[0].dispatchEvent(new MouseEvent('click', {bubbles:true}));",
+                    closeBtn
+            );        } catch (TimeoutException ignored) {}
+    }
+
+    public void openFreeAccessVideo(int index){
+       List<WebElement> videosFound = wait.until(ExpectedConditions.visibilityOfAllElementsLocatedBy(videos));
+       List<WebElement> freeVideos = new ArrayList<>();
+       for (WebElement video : videosFound){
+           List<WebElement> labels = video.findElements(By.xpath(".//p[normalize-space()='FULL / VIDEO']"));
+
+           if (labels.isEmpty()) {
+               freeVideos.add(video);
+           }
+       }
+       wait.until(ExpectedConditions.elementToBeClickable(freeVideos.get(index))).click();
+    }
+
+    public void openFullAccessVideo(int index){
+        List<WebElement> videosFound = wait.until(ExpectedConditions.visibilityOfAllElementsLocatedBy(videos));
+        List<WebElement> paidVideos = new ArrayList<>();
+        for (WebElement video : videosFound){
+            List<WebElement> labels = video.findElements(By.xpath(".//p[normalize-space()='FULL / VIDEO']"));
+
+            if (!labels.isEmpty()) {
+                paidVideos.add(video);
+            }
+        }
+        wait.until(ExpectedConditions.elementToBeClickable(paidVideos.get(index))).click();
+    }
+
+    public String getHomeFreeVideoTitle(int index){
+        List<WebElement> videosFound = wait.until(ExpectedConditions.visibilityOfAllElementsLocatedBy(videos));
+        List<WebElement> freeVideos = new ArrayList<>();
+        for (WebElement video : videosFound){
+            List<WebElement> labels = video.findElements(By.xpath(".//p[normalize-space()='FULL / VIDEO']"));
+
+            if (labels.isEmpty()) {
+                freeVideos.add(video);
+            }
+        }
+
+        return freeVideos.get(index).findElement(By.xpath(".//h3")).getText();
+    }
+
+    public String getHomePaidVideoTitle(int index){
+        List<WebElement> videosFound = wait.until(ExpectedConditions.visibilityOfAllElementsLocatedBy(videos));
+        List<WebElement> paidVideos = new ArrayList<>();
+        for (WebElement video : videosFound){
+            List<WebElement> labels = video.findElements(By.xpath(".//p[normalize-space()='FULL / VIDEO']"));
+
+            if (!labels.isEmpty()) {
+                paidVideos.add(video);
+            }
+        }
+        return paidVideos.get(index).findElement(By.xpath(".//h3")).getText();
+    }
+
+    public String getFreeVideoCategoryFromBrowsePage(int index){
+        List<WebElement> videoElements = wait.until(ExpectedConditions.visibilityOfAllElementsLocatedBy(videos));
+
+        List<WebElement> freeVideos = new ArrayList<>();
+        for (WebElement video : videoElements){
+            List<WebElement> labels = video.findElements(By.xpath(".//p[normalize-space()='FULL / VIDEO']"));
+
+            if (labels.isEmpty()) {
+                freeVideos.add(video);
+            }
+        }
+        return freeVideos.get(index).findElement(By.xpath(".//p[@class='video-card__category']")).getText();
+    }
+
+    public String getPaidVideoCategoryFromBrowsePage(int index){
+        List<WebElement> videoElements = wait.until(ExpectedConditions.visibilityOfAllElementsLocatedBy(videos));
+        List<WebElement> paidVideos = new ArrayList<>();
+        for (WebElement video : videoElements){
+            List<WebElement> labels = video.findElements(By.xpath(".//p[normalize-space()='FULL / VIDEO']"));
+
+            if (!labels.isEmpty()) {
+                paidVideos.add(video);
+            }
+        }
+        return paidVideos.get(index).findElement(By.xpath(".//p[@class='video-card__category']")).getText();
+    }
+
 
     //region Validation
 
@@ -81,14 +179,38 @@ public class VideoPage {
         int actualNumberToInt = Integer.parseInt(actualNumber);
         Assertions.assertTrue(actualNumberToInt > numOfVideosThreshold,
                 "Expected actualNumber (" + actualNumber + ") to be greater than numOfVideos (" + numOfVideosThreshold + ")");
-        // I can't check the exact number of results because videos are being uploaded every few days. Therefore I will check that the current number of videos
+        // I can't check the exact number of results because videos are being uploaded every few days. Therefore, I will check that the current number of videos
         // is the lowest threshold and actual number is only larger than it since new videos are always added (every few days). In real time application I would
         // check this by fetching the actual number from APIs and use that number and check if actualNumber equals numOfVideos.
     }
 
     public void validateNumberOfVideosInTheList(int sizeOfVideoList){
+        WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(10));
+        wait.until(driver -> driver.findElements(sectionForListOfVideos).size() >= sizeOfVideoList);
         List<WebElement> listOfVideos =  wait.until(ExpectedConditions.visibilityOfAllElementsLocatedBy(sectionForListOfVideos));
-        Assertions.assertEquals(listOfVideos.size(), sizeOfVideoList, "There aren't 12 videos by default listed in the browse section");
+        Assertions.assertEquals(listOfVideos.size(), sizeOfVideoList, "There aren't " + sizeOfVideoList + " videos by default listed in the browse section");
+    }
+
+    public void validateVideoTitle(String expectedTitle) {
+        String actualTitle = wait.until(ExpectedConditions.visibilityOfElementLocated(By.xpath("//h1"))).getText();
+        Assertions.assertEquals(actualTitle, expectedTitle, "Title is not as expected!");
+    }
+
+    public void validateVideoPlays() {
+        wait.until(ExpectedConditions.visibilityOfElementLocated(videoPlaying));
+    }
+
+    public void validateVideoDoesntPlay() {
+        List<WebElement> videos = driver.findElements(videoPlaying);
+
+        // If the list is empty, video is not present
+        boolean videoVisible = !videos.isEmpty() && videos.get(0).isDisplayed();
+        Assertions.assertFalse(videoVisible, "Video is visible but shouldn't be because it's a paid video!");
+    }
+
+    public void validateVideoCategory(String expectedCategory){
+        String actualCategory = wait.until(ExpectedConditions.visibilityOfElementLocated(videoCategory)).getText();
+        Assertions.assertEquals(expectedCategory, actualCategory, "Category not correct!");
     }
 
     //endregion

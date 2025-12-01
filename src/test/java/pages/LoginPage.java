@@ -28,6 +28,13 @@ public class LoginPage {
         wait.until(ExpectedConditions.visibilityOfElementLocated(signInBtn)).click();
     }
 
+    public void correctLoginForRefactoring(){
+        WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(15));
+        wait.until(ExpectedConditions.visibilityOfElementLocated(email)).sendKeys("fariscolakovic00@gmail.com");
+        wait.until(ExpectedConditions.visibilityOfElementLocated(password)).sendKeys("hBSBR!LKDsna1");
+        wait.until(ExpectedConditions.visibilityOfElementLocated(signInBtn)).click();
+    }
+
     public void choseRegistrationPage() {
         WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(10));
         wait.until(ExpectedConditions.visibilityOfElementLocated(registerNowBtn)).click();

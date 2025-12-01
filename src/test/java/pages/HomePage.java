@@ -100,6 +100,11 @@ public class HomePage extends BaseTestSetup {
         wait.until(ExpectedConditions.visibilityOfElementLocated(getSectionByName(sectionName))).click();
     }
 
+    public void openAccountSettings() {
+        WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(10));
+        wait.until(ExpectedConditions.visibilityOfElementLocated(accountButton)).click();
+    }
+
     public void hoverOverSection(String sectionName) {
         WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(10));
         WebElement section = wait.until(ExpectedConditions.visibilityOfElementLocated(getSectionByName(sectionName)));

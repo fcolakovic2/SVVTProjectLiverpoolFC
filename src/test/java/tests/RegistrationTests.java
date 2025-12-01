@@ -21,7 +21,6 @@ public class RegistrationTests extends BaseTestSetup {
         registration.fillRegistrationForm("Faris", "Colakovic", birthDate,
                 gender, email, "United Kingdom", password, password, true);
         registration.finalizeRegistration(true);
-        BaseTestSetup.setLoggedIn(true);
         home.validateUserIsCorrectlyLoggedInAfterRegistering();
     }
 
