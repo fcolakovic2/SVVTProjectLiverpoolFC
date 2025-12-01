@@ -92,7 +92,9 @@ public class HomePage extends BaseTestSetup {
 
     public void logOut() {
         WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(10));
-        wait.until(ExpectedConditions.visibilityOfElementLocated(logoutButton)).click();
+        WebElement logout = wait.until(ExpectedConditions.elementToBeClickable(logoutButton));
+        logout.click();
+        wait.until(ExpectedConditions.visibilityOfElementLocated(signIn));
     }
 
     public void clickOnSection(String sectionName) {
@@ -170,7 +172,7 @@ public class HomePage extends BaseTestSetup {
 
     //region ValidationMethods
 
-    public void validateUserIsCorrectlyLoggedInAfterRegistering(){
+    public void validateUserIsCorrectlyLoggedInAfterRegistering() {
        WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(10));
        WebElement account = wait.until(ExpectedConditions.visibilityOfElementLocated(accountButton));
        WebElement logout = wait.until(ExpectedConditions.elementToBeClickable(logoutButton));

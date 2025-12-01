@@ -31,8 +31,7 @@ public class LoginTests extends BaseTestSetup {
     }
 
     @Test
-    public void invalidEmailShowsError() throws InterruptedException {
-        Thread.sleep(3000);
+    public void invalidEmailShowsError() {
         home.clickSignIn();
         login.login("fariscolakovic0@gmail.com", "hBSBR!LKDsna1");
         home.validateUserIsNotLoggedIn();
