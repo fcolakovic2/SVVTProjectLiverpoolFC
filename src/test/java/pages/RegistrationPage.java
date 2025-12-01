@@ -40,7 +40,7 @@ public class RegistrationPage {
 
         if (correctRegistrationForm){
             wait.until(ExpectedConditions.visibilityOfElementLocated(logOutButtonAfterRegistration));
-            wait.until(ExpectedConditions.visibilityOfElementLocated(backToSiteButton)).click();
+            wait.until(ExpectedConditions.elementToBeClickable(backToSiteButton)).click();
         }
     }
 

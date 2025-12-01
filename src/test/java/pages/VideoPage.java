@@ -43,7 +43,10 @@ public class VideoPage {
 
     public void loadMoreVideos(){
         wait.until(ExpectedConditions.visibilityOfElementLocated(loadMoreButton)).click();
+    }
 
+    public void openVideoSubSectionURL(String subSection){
+        driver.get("https://video.liverpoolfc.com/browse/");
     }
 
     public void closeMarketingPopUp() {
@@ -173,16 +176,28 @@ public class VideoPage {
     }
 
     public void validateNumberOfAllVideos(int numOfVideosThreshold) {
-        WebElement numberOfVideosElement = wait.until(ExpectedConditions.visibilityOfElementLocated(numberOfVideoResults));
+        WebDriverWait waitForNumber = new WebDriverWait(driver, Duration.ofSeconds(10));
 
-        String actualNumber = numberOfVideosElement.getText();
-        int actualNumberToInt = Integer.parseInt(actualNumber);
+        waitForNumber.until(driver -> {
+            WebElement numberOfVideosElement = driver.findElement(numberOfVideoResults);
+            String text = numberOfVideosElement.getText().trim();
+
+            try {
+                int number = Integer.parseInt(text);
+                return number > 0;  //must check this because webpage first shows 0 and then populates the string with correct number/replaces 0
+            } catch (NumberFormatException e) {
+                return false;
+            }
+        });
+
+        // Now get the actual number
+        WebElement numberOfVideosElement = driver.findElement(numberOfVideoResults);
+        int actualNumberToInt = Integer.parseInt(numberOfVideosElement.getText().trim());
+
         Assertions.assertTrue(actualNumberToInt > numOfVideosThreshold,
-                "Expected actualNumber (" + actualNumber + ") to be greater than numOfVideos (" + numOfVideosThreshold + ")");
-        // I can't check the exact number of results because videos are being uploaded every few days. Therefore, I will check that the current number of videos
-        // is the lowest threshold and actual number is only larger than it since new videos are always added (every few days). In real time application I would
-        // check this by fetching the actual number from APIs and use that number and check if actualNumber equals numOfVideos.
+                "Expected actualNumber (" + actualNumberToInt + ") to be greater than numOfVideos (" + numOfVideosThreshold + ")");
     }
+
 
     public void validateNumberOfVideosInTheList(int sizeOfVideoList){
         WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(10));

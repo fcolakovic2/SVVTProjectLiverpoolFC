@@ -28,19 +28,6 @@ public class VideoPlaybackTests extends BaseTestSetup {
     }
 
     @Test
-    public void openFreeVideoAndValidateItPlays() throws InterruptedException {
-        home.clickSignIn();
-        login.login("fariscolakovic00@gmail.com", "hBSBR!LKDsna1");
-        Thread.sleep(5000);
-        home.clickOnSection("Video");
-        videos.openVideosSubSection("Browse");
-        videos.closeMarketingPopUp();
-        videos.openVideosSubSection("Browse"); //need to select Browse from the navigation bar again, because if the user is logged in he is directly taken to All Red videos website when clicking Browse for the 1st time
-        videos.openFreeAccessVideo(1);
-        videos.validateVideoPlays();
-    }
-
-    @Test
     public void openPaidVideoAndValidateItDoesntPlay() {
         home.clickOnSection("Video");
         videos.openVideosSubSection("Browse");

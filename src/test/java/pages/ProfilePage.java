@@ -1,10 +1,7 @@
 package pages;
 
 import org.junit.jupiter.api.Assertions;
-import org.openqa.selenium.By;
-import org.openqa.selenium.JavascriptExecutor;
-import org.openqa.selenium.WebDriver;
-import org.openqa.selenium.WebElement;
+import org.openqa.selenium.*;
 import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.WebDriverWait;
 
@@ -23,6 +20,13 @@ public class ProfilePage {
     private final By dateOfBirthOfUser = By.xpath("//dt[text()='Date of Birth']/following-sibling::dd");
     private final By usersFAQ = By.xpath("//a[text()='Please see our FAQs']");
     private final By upgradeButton = By.xpath("//a[text()='Upgrade']");
+    private final By updatePhoneButton = By.xpath("//button[@data-testid='ACCOUNT_PROFILE_MOBILE_SUBMIT_BUTTON']");
+    private final By phoneNumber = By.xpath("//input[@id=':R2jajj6tajttsuqkq:']"); //very weird value to use as an id for input field
+    private final By successfulUpdateNotification = By.xpath("//div[text()='Your mobile number has been updated successfully']");
+    private final By countryPhone = By.xpath("//div[@id='country']");
+    private final By countryOptions = By.xpath("//ul[@aria-labelledby='country-label']/li");
+    private final By thisFieldIsRequired = By.xpath("//p[text()='This field is required']");
+    private final By validPhoneNumberIsRequired = By.xpath("//p[text()='A valid mobile number is required']");
 
 
     public ProfilePage(WebDriver driver) {
@@ -44,6 +48,45 @@ public class ProfilePage {
         WebElement dobElement = driver.findElement(dateOfBirthOfUser);
         return wait.until(ExpectedConditions.visibilityOfElementLocated(dateOfBirthOfUser)).getText();
     }
+
+    public void clickUpdateButton(){
+        wait.until(ExpectedConditions.elementToBeClickable(updatePhoneButton)).click();
+    }
+
+    public void enterCountryPrefix(String prefix) {
+        WebElement countryField = wait.until(
+                ExpectedConditions.visibilityOfElementLocated(countryPhone)
+        );
+        countryField.clear();
+        countryField.sendKeys(prefix);
+    }
+
+    public void enterPhoneNumber(String number) {
+        WebElement phoneField = wait.until(
+                ExpectedConditions.visibilityOfElementLocated(phoneNumber)
+        );
+        // Use Ctrl+A + Delete
+        phoneField.click();
+        phoneField.sendKeys(Keys.chord(Keys.CONTROL, "a"));
+        phoneField.sendKeys(Keys.DELETE);
+
+        // Type the new number
+        phoneField.sendKeys(number);
+    }
+
+    public void selectCountryByDataValue(String dataValue) {
+        // 1. Click dropdown to open options
+        WebElement dropdown = wait.until(ExpectedConditions.elementToBeClickable(countryPhone));
+        dropdown.click();
+
+        // 2. Build dynamic locator for the li with matching data-value
+        By optionLocator = By.xpath("//ul[@aria-labelledby='country-label']/li[@data-value='" + dataValue + "']");
+
+        // 3. Wait for the li to appear and click
+        WebElement option = wait.until(ExpectedConditions.elementToBeClickable(optionLocator));
+        option.click();
+    }
+
 
     //region Validation
 
@@ -119,6 +162,32 @@ public class ProfilePage {
     public void validateUserDateOfBirthFormat(String dateOfBirth){
        Assertions.assertTrue(isValidDateFormat(dateOfBirth), "Date of birth is not as expected!");
     }
+
+    public boolean validateSuccessfulUpdateNotificationDisplayed() {
+        try {
+            WebDriverWait shortWait = new WebDriverWait(driver, Duration.ofSeconds(5));
+
+            WebElement notification = shortWait.until(
+                    ExpectedConditions.visibilityOfElementLocated(successfulUpdateNotification)
+            );
+
+            WebDriverWait disappearWait = new WebDriverWait(driver, Duration.ofSeconds(10));
+            disappearWait.until(ExpectedConditions.invisibilityOf(notification));
+
+            return true; // appeared and disappeared successfully
+        } catch (TimeoutException e) {
+            return false; // did not appear or did not disappear in time
+        }
+    }
+
+    public void validateInvalidPhoneNumberFieldError(){
+        wait.until(ExpectedConditions.visibilityOfElementLocated(validPhoneNumberIsRequired));
+    }
+
+    public void validateRequiredFieldError(){
+        wait.until(ExpectedConditions.visibilityOfElementLocated(thisFieldIsRequired));
+    }
+
 
     //endregion
 }

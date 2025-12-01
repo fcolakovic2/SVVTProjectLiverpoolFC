@@ -16,7 +16,7 @@ public class ProfileTests extends BaseTestSetup {
 
     @AfterEach
     public void afterEachTest(){
-        home.logOut();
+        home.logOutFromProfilePage();
     }
 
     @Test

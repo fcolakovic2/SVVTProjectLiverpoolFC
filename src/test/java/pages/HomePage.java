@@ -28,7 +28,7 @@ public class HomePage extends BaseTestSetup {
     private final By sponsorshipLogo = By.xpath("//img[@src='/standard-chartered.webp']//following-sibling::span[text()='Standard Chartered']");
     private final By acceptCookiesBtn = By.xpath("//button[text()='Accept All Cookies']");
     private final By maybeLaterPromoPopUp = By.xpath("//button[text()='Maybe Later']");
-    private final By accountButton = By.xpath("//a[text()='Account']");
+    private final By accountButton = By.xpath("//a[@href='https://profile.liverpoolfc.com']");
     private final By logoutButton = By.xpath("//a[text()='Logout']");
     private final By contentGridItems = By.xpath("//li[@class='content-grid-item']");
     private final By articleTitles = By.xpath("//li[@class='content-grid-item']//h2[not(contains(text(),'Video'))]");
@@ -94,17 +94,25 @@ public class HomePage extends BaseTestSetup {
         WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(10));
         WebElement logout = wait.until(ExpectedConditions.elementToBeClickable(logoutButton));
         logout.click();
-        wait.until(ExpectedConditions.visibilityOfElementLocated(signIn));
+        wait.until(ExpectedConditions.visibilityOfAllElementsLocatedBy(signIn));
+    }
+
+    public void logOutFromProfilePage() {
+        WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(10));
+        WebElement logout = wait.until(ExpectedConditions.elementToBeClickable(logoutButton));
+        logout.click();
     }
 
     public void clickOnSection(String sectionName) {
         WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(10));
-        wait.until(ExpectedConditions.visibilityOfElementLocated(getSectionByName(sectionName))).click();
+        WebElement element = wait.until(ExpectedConditions.visibilityOfElementLocated(getSectionByName(sectionName)));
+        ((JavascriptExecutor) driver).executeScript("arguments[0].scrollIntoView(true);", element);
+        wait.until(ExpectedConditions.elementToBeClickable(element)).click();
     }
 
     public void openAccountSettings() {
         WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(10));
-        wait.until(ExpectedConditions.visibilityOfElementLocated(accountButton)).click();
+        wait.until(ExpectedConditions.elementToBeClickable(accountButton)).click();
     }
 
     public void hoverOverSection(String sectionName) {
@@ -174,12 +182,21 @@ public class HomePage extends BaseTestSetup {
 
     public void validateUserIsCorrectlyLoggedInAfterRegistering() {
        WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(10));
-       WebElement account = wait.until(ExpectedConditions.visibilityOfElementLocated(accountButton));
+       WebElement account = wait.until(ExpectedConditions.elementToBeClickable(accountButton));
        WebElement logout = wait.until(ExpectedConditions.elementToBeClickable(logoutButton));
 
        Assertions.assertTrue(account.isDisplayed(), "Account button not displayed!");
        Assertions.assertTrue(logout.isDisplayed(), "Logout button not displayed!");
        home.logOut();
+    }
+
+    public void validateUserIsCorrectlyLoggedInAfterRegisteringWithoutLogout() {
+        WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(10));
+        WebElement account = wait.until(ExpectedConditions.elementToBeClickable(accountButton));
+        WebElement logout = wait.until(ExpectedConditions.elementToBeClickable(logoutButton));
+
+        Assertions.assertTrue(account.isDisplayed(), "Account button not displayed!");
+        Assertions.assertTrue(logout.isDisplayed(), "Logout button not displayed!");
     }
 
     public void validateUserIsNotLoggedIn(){

@@ -2,6 +2,7 @@ package base;
 
 import io.github.bonigarcia.wdm.WebDriverManager;
 import org.junit.jupiter.api.*;
+import org.openqa.selenium.TimeoutException;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.chrome.ChromeDriver;
@@ -67,7 +68,22 @@ public class BaseTestSetup {
 
     @BeforeEach
     public void setupTest() {
-        driver.navigate().to(BASE_URL);
+        int attempts = 0;
+        int maxRetries = 2; // number of retries
+        boolean pageLoaded = false;
+
+        while (attempts < maxRetries && !pageLoaded) {
+            try {
+                driver.navigate().to(BASE_URL);
+                pageLoaded = true; // success
+            } catch (TimeoutException e) {
+                attempts++;
+                System.out.println("Page load timed out, retrying... Attempt " + attempts);
+                if (attempts == maxRetries) {
+                    throw e; // rethrow after final attempt
+                }
+            }
+        }
 
         home = new HomePage(driver);
         login = new LoginPage(driver);
@@ -84,7 +100,19 @@ public class BaseTestSetup {
     @BeforeAll public static void setUpDriverAndPages() {
         WebDriverManager.chromedriver().setup();
         ChromeOptions  options = new ChromeOptions();
-        options.addArguments("--incognito");
+        options.addArguments("--user-agent=Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0 Safari/537.36");
+        options.setExperimentalOption("excludeSwitches", new String[]{"enable-automation"});
+        options.setExperimentalOption("useAutomationExtension", false);
+        // avoid bot detection
+        options.addArguments("--disable-blink-features");
+        options.addArguments("--disable-blink-features=AutomationControlled");
+
+// real window size
+        options.addArguments("--window-size=1400,900");
+
+// enable JavaScript, images, GPU
+        options.addArguments("--enable-gpu");
+        options.addArguments("--no-sandbox");
         driver = new ChromeDriver(options);
         driver.manage().window().maximize();
     }
