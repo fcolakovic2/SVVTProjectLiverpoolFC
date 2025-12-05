@@ -31,9 +31,11 @@ public class HomePage extends BaseTestSetup {
     private final By accountButton = By.xpath("//a[@href='https://profile.liverpoolfc.com']");
     private final By logoutButton = By.xpath("//a[text()='Logout']");
     private final By contentGridItems = By.xpath("//li[@class='content-grid-item']");
-    private final By articleTitles = By.xpath("//li[@class='content-grid-item']//h2[not(contains(text(),'Video'))]");
-    private final By articleTimes = By.xpath("//li[@class='content-grid-item']//time//span");
-    private final By articleImages = By.xpath("//li[@class='content-grid-item']//img");
+    private final By articleTitlesExceptVideoGallery = By.xpath("//li[@class='content-grid-item']//h2[not(contains(string(.), 'Video')) and not(contains(string(.), 'gallery'))]");
+    private final By allArticleTitles = By.xpath("//li[@class='content-grid-item']//h2");
+    private final By articleTimes = By.xpath("//li[@class='content-grid-item']//h2/parent::div//time//span");
+    private final By articleImages = By.xpath("//li[@class='content-grid-item']//img[not(contains(@alt,'gallery'))]");
+    private final By articleTypes = By.xpath("//li[@class='content-grid-item']//time//span/parent::time/preceding-sibling::h2/span[1]");
     public HomePage(WebDriver driver) { this.driver = driver; }
 
     public void acceptCookiesIfPresent() {
@@ -149,20 +151,37 @@ public class HomePage extends BaseTestSetup {
         actions.moveToElement(lang).pause(Duration.ofMillis(100)).click().perform();
     }
 
-    public void openArticleByIndex(int index) {
+    public void openArticleByIndex(int index, boolean allArticles) {
         WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(10));
-
+        List<WebElement> allItems = new ArrayList<>();
         // Get all li elements
-        List<WebElement> allItems = wait.until(ExpectedConditions.visibilityOfAllElementsLocatedBy(articleTitles));
+        if (allArticles){
+           allItems = wait.until(ExpectedConditions.visibilityOfAllElementsLocatedBy(allArticleTitles));
+        }
+        else{
+            allItems = wait.until(ExpectedConditions.visibilityOfAllElementsLocatedBy(articleTitlesExceptVideoGallery));
+        }
 
         wait.until(ExpectedConditions.elementToBeClickable(allItems.get(index))).click();
         wait.until(ExpectedConditions.urlContains("news"));
     }
 
 
-    public String getHomeArticleTitle(int index) {
+    public String getHomeArticleTitle(int index, Boolean allArticles) {
         WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(10));
-        List<WebElement> articleTitlesElements = wait.until(ExpectedConditions.visibilityOfAllElementsLocatedBy(articleTitles));
+        List<WebElement> articleTitlesElements = new ArrayList<>();
+        if (allArticles){
+            articleTitlesElements = wait.until(ExpectedConditions.visibilityOfAllElementsLocatedBy(allArticleTitles));
+        }
+        else{
+            articleTitlesElements = wait.until(ExpectedConditions.visibilityOfAllElementsLocatedBy(articleTitlesExceptVideoGallery));
+        }
+        return articleTitlesElements.get(index).getText();
+    }
+
+    public String getHomeArticleType(int index) {
+        WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(10));
+        List<WebElement> articleTitlesElements = wait.until(ExpectedConditions.visibilityOfAllElementsLocatedBy(articleTypes));
         return articleTitlesElements.get(index).getText();
     }
 

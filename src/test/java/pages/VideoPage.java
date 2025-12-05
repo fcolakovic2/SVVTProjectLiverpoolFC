@@ -8,6 +8,7 @@ import org.openqa.selenium.support.ui.WebDriverWait;
 import java.time.Duration;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -24,11 +25,21 @@ public class VideoPage {
     private final By loadMoreButton = By.xpath("//div[@class='button-slice listing__more']//button");
     private final By closeMarketingPopUp = By.xpath("//*[@class='marketing-popup__close']");
     private final By videos = By.xpath("//section[@class='listing']//article");
+    private final By videosTitles = By.xpath("//section[@class='listing']//article//h3");
     private final By videoPlaying = By.xpath("//video[contains(@data-setup, '\"autoplay\":\"auto\"')]");
     private final By videoCategory = By.xpath("//p[@class='viewer-container__categories']");
     private final By categoryInInitialDropdownSubSection(String categoryName) {
         return By.xpath("//a[text()='" + categoryName + "']");
     }
+    private final By videoSearchInput = By.xpath("//input[@class='video-filters__search-bar']");
+    private final By videoFiltersOpen = By.xpath("//div[@class='video-filters__actions']//button[@class='video-filters__toggle']");
+    private final By videoFilterLength(String length){
+        return By.xpath("//button[@class='duration-menu__button']//p[text()='"+ length+"']");
+    }
+    private final By videoFilterLengthHighlighted(String length){
+        return By.xpath(" //p[text()='"+ length +"']/parent::button[contains(@class, 'active')]");
+    }
+    private final By actualVideosLength = By.xpath("//p[@class='video-card__duration']");
 
     String[] categories = { "All Red Video", "Matches", "Players", "Browse", "Playlists", "Live" };
 
@@ -143,6 +154,26 @@ public class VideoPage {
         return paidVideos.get(index).findElement(By.xpath(".//p[@class='video-card__category']")).getText();
     }
 
+    public void enterSearchVideosValue(String searchValue){
+       WebElement searchInput = wait.until(ExpectedConditions.elementToBeClickable(videoSearchInput));
+       searchInput.click();
+       searchInput.clear();
+       searchInput.sendKeys(searchValue);
+       searchInput.sendKeys(Keys.ENTER);
+       wait.until(ExpectedConditions.urlContains(searchValue.trim().replace("!", "")));
+    }
+
+    public void openVideoLengthFilter(){
+       driver.findElement(videoFiltersOpen).click();
+       wait.until(ExpectedConditions.visibilityOfElementLocated(videoFilterLength("Long")));
+    }
+
+    public void selectVideoLengthFilter(String length) throws InterruptedException {
+        wait.until(ExpectedConditions.visibilityOfElementLocated(videoFilterLength(length))).click();
+        wait.until(ExpectedConditions.visibilityOfElementLocated(videoFilterLengthHighlighted(length)));
+        Thread.sleep(2000);
+    }
+
 
     //region Validation
 
@@ -175,29 +206,23 @@ public class VideoPage {
         Assertions.assertEquals(nameOfCategory, actualCategory, "Name of category is not as expected!");
     }
 
-    public void validateNumberOfAllVideos(int numOfVideosThreshold) {
+    public void validateNumberOfAllVideos(int numOfVideos) {
         WebDriverWait waitForNumber = new WebDriverWait(driver, Duration.ofSeconds(10));
-
-        waitForNumber.until(driver -> {
-            WebElement numberOfVideosElement = driver.findElement(numberOfVideoResults);
-            String text = numberOfVideosElement.getText().trim();
-
-            try {
-                int number = Integer.parseInt(text);
-                return number > 0;  //must check this because webpage first shows 0 and then populates the string with correct number/replaces 0
-            } catch (NumberFormatException e) {
-                return false;
-            }
-        });
-
-        // Now get the actual number
         WebElement numberOfVideosElement = driver.findElement(numberOfVideoResults);
         int actualNumberToInt = Integer.parseInt(numberOfVideosElement.getText().trim());
 
-        Assertions.assertTrue(actualNumberToInt > numOfVideosThreshold,
-                "Expected actualNumber (" + actualNumberToInt + ") to be greater than numOfVideos (" + numOfVideosThreshold + ")");
+        Assertions.assertTrue(actualNumberToInt > numOfVideos,
+                "Expected actualNumber (" + actualNumberToInt + ") to be greater than numOfVideos (" + numOfVideos + ")");
     }
 
+    public void validateExactNumberOfAllVideos(int numOfVideos) throws InterruptedException {
+        WebDriverWait waitForNumber = new WebDriverWait(driver, Duration.ofSeconds(10));
+        Thread.sleep(2000);
+        WebElement numberOfVideosElement = driver.findElement(numberOfVideoResults);
+        int actualNumberToInt = Integer.parseInt(numberOfVideosElement.getText().trim());
+
+        Assertions.assertEquals(actualNumberToInt, numOfVideos, "Expected actualNumber (" + actualNumberToInt + ") to be equal to numOfVideos (" + numOfVideos + ")");
+    }
 
     public void validateNumberOfVideosInTheList(int sizeOfVideoList){
         WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(10));
@@ -227,6 +252,82 @@ public class VideoPage {
         String actualCategory = wait.until(ExpectedConditions.visibilityOfElementLocated(videoCategory)).getText();
         Assertions.assertEquals(expectedCategory, actualCategory, "Category not correct!");
     }
+
+    public void validateAllVideoTitlesContainInputString(String expectedTitle) {
+        // 1. Capture number of videos BEFORE search results load
+        int oldCount = driver.findElements(videosTitles).size();
+
+        // 2. Wait until number of videos CHANGES (new results replace old results)
+        WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(10));
+        wait.until(driver -> {
+            int newCount = driver.findElements(videosTitles).size();
+            return newCount != oldCount && newCount > 0;
+        });
+
+        // 3. Now get the NEW results
+        List<WebElement> newTitles = driver.findElements(videosTitles);
+
+        // 4. Validate updated results
+        for (WebElement title : newTitles) {
+            String actual = title.getText().toLowerCase();
+            Assertions.assertTrue(
+                    actual.contains(expectedTitle.toLowerCase()),
+                    "Title '" + actual + "' does not contain expected text '" + expectedTitle + "'."
+            );
+        }
+    }
+
+    public void validateAllVideoTitlesHaveSetLength(String length) {
+       List<WebElement> videosLengths = driver.findElements(actualVideosLength);
+       List<Integer> numberOfMinutes = new ArrayList<>();
+       int minute;
+        for (WebElement lengthOfVideoString : videosLengths) {
+            String actual = lengthOfVideoString.getText();
+            if (Objects.equals(length, "Short") || Objects.equals(length, "Medium")){
+                String[] splitByMinutesSeconds = actual.split(":");
+                Assertions.assertFalse(actual.isEmpty(), "Video duration is empty!");
+                Assertions.assertTrue(splitByMinutesSeconds[0].charAt(0)=='0' || splitByMinutesSeconds[0].charAt(0) == '1');
+                if (splitByMinutesSeconds[0].charAt(0) == '1'){
+                    String result = "" + splitByMinutesSeconds[0].charAt(0)
+                            + splitByMinutesSeconds[0].charAt(1);
+                    minute = Integer.parseInt(result);
+                }
+                else{
+                    minute = Integer.parseInt(String.valueOf(splitByMinutesSeconds[0].charAt(1)));
+                }
+                numberOfMinutes.add(minute);
+            }
+            else {
+                if (actual.contains(":")){
+                    String[] splitByMinutesSeconds = actual.split(":");
+                    Assertions.assertFalse(actual.isEmpty(), "Video duration is empty!");
+                    minute = Integer.parseInt(splitByMinutesSeconds[0]);
+                    numberOfMinutes.add(minute);
+                }
+                else if (actual.contains("h")){
+                    System.out.println(actual); // no need to add it to minutes and check, its definitely longer than 1h
+                }
+            }
+        }
+
+        switch(length) {
+            case "Short":
+                boolean allOkShort = numberOfMinutes.stream().allMatch(n -> n < 5);
+                Assertions.assertTrue(allOkShort, "List contains values greater than 5");
+                break;
+            case "Medium":
+                boolean allOMedium = numberOfMinutes.stream().allMatch(n -> n >= 5 && n <= 10);
+                Assertions.assertTrue(allOMedium, "List contains values greater than 5");
+                break;
+            case "Long":
+                boolean allOkLong = numberOfMinutes.stream().allMatch(n -> n > 10);
+                Assertions.assertTrue(allOkLong, "List contains values smaller than 10");
+                break;
+
+        }
+    }
+
+
 
     //endregion
 }

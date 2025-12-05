@@ -8,6 +8,8 @@ import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.WebDriverWait;
 
 import java.time.Duration;
+import java.util.ArrayList;
+import java.util.List;
 
 public class ArticlePage {
 
@@ -15,6 +17,7 @@ public class ArticlePage {
     private WebDriverWait wait;
 
     private final By articleTitleH1 = By.tagName("h1");
+    private final By articleType = By.xpath("//h1//span");
     private final By articleTimePublished = By.xpath("//span[contains(text(),'Published')]//span");
     private final By articleImage = By.xpath("//h1/parent::div/preceding-sibling::div//img");
 
@@ -36,6 +39,20 @@ public class ArticlePage {
                 expectedTitle,
                 actualTitle,
                 "Article title in <h1> does not match expected title!"
+        );
+    }
+
+    public void validateCorrectArticleType(String expectedType){
+        WebElement actualTypeElement = wait.until(
+                ExpectedConditions.visibilityOfElementLocated(articleType)
+        );
+
+        String actualType = actualTypeElement.getText();
+
+        Assertions.assertEquals(
+                expectedType,
+                actualType,
+                "Actual article type on article page does not match expected type!"
         );
     }
 
