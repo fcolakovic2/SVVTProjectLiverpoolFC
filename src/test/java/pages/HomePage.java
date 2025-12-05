@@ -34,7 +34,7 @@ public class HomePage extends BaseTestSetup {
     private final By articleTitlesExceptVideoGallery = By.xpath("//li[@class='content-grid-item']//h2[not(contains(string(.), 'Video')) and not(contains(string(.), 'gallery'))]");
     private final By allArticleTitles = By.xpath("//li[@class='content-grid-item']//h2");
     private final By articleTimes = By.xpath("//li[@class='content-grid-item']//h2/parent::div//time//span");
-    private final By articleImages = By.xpath("//li[@class='content-grid-item']//img[not(contains(@alt,'gallery'))]");
+    private final By articleImages = By.xpath("//li[@class='content-grid-item']//img[not(contains(@alt,'gallery')) and not(contains(@alt,'video'))]");
     private final By articleTypes = By.xpath("//li[@class='content-grid-item']//time//span/parent::time/preceding-sibling::h2/span[1]");
     public HomePage(WebDriver driver) { this.driver = driver; }
 
