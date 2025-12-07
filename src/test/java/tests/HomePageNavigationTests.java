@@ -29,5 +29,11 @@ public class HomePageNavigationTests extends BaseTestSetup {
         profile.validateCurrentUrl();
     }
 
+    @Test
+    public void navigatingToPasswordResetThroughLoginPage () {
+        home.clickSignIn();
+        login.clickForgetPassword();
+        login.validateUserIsOnResetPasswordPage();
+    }
 
 }

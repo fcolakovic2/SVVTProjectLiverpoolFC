@@ -1,10 +1,9 @@
 package tests;
 
 import base.BaseTestSetup;
-import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
-public class ChoseLanguageTests extends BaseTestSetup {
+public class ChooseLanguageTests extends BaseTestSetup {
 
     @Test
     public void changeLanguageToGermanAndValidateChanges() {

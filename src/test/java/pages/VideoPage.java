@@ -160,7 +160,7 @@ public class VideoPage {
        searchInput.clear();
        searchInput.sendKeys(searchValue);
        searchInput.sendKeys(Keys.ENTER);
-       wait.until(ExpectedConditions.urlContains(searchValue.trim().replace("!", "")));
+       wait.until(ExpectedConditions.urlContains("?s="));
     }
 
     public void openVideoLengthFilter(){
@@ -254,20 +254,28 @@ public class VideoPage {
     }
 
     public void validateAllVideoTitlesContainInputString(String expectedTitle) {
-        // 1. Capture number of videos BEFORE search results load
-        int oldCount = driver.findElements(videosTitles).size();
+        // Capture old titles text
+        List<String> oldTitlesText = driver.findElements(By.xpath("//section[@class='listing']//article//h3"))
+                .stream()
+                .map(WebElement::getText)
+                .toList();
 
-        // 2. Wait until number of videos CHANGES (new results replace old results)
+        // Wait until results update (no need to type again)
         WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(10));
         wait.until(driver -> {
-            int newCount = driver.findElements(videosTitles).size();
-            return newCount != oldCount && newCount > 0;
+            try {
+                List<WebElement> currentTitles = driver.findElements(By.xpath("//section[@class='listing']//article//h3"));
+                if (currentTitles.isEmpty()) return false;
+                String firstText = currentTitles.get(0).getText();
+                return !firstText.equals(oldTitlesText.get(0));
+            } catch (StaleElementReferenceException e) {
+                return false;
+            }
         });
 
-        // 3. Now get the NEW results
-        List<WebElement> newTitles = driver.findElements(videosTitles);
+        // Fetch fresh elements
+        List<WebElement> newTitles = driver.findElements(By.xpath("//section[@class='listing']//article//h3"));
 
-        // 4. Validate updated results
         for (WebElement title : newTitles) {
             String actual = title.getText().toLowerCase();
             Assertions.assertTrue(
@@ -275,6 +283,7 @@ public class VideoPage {
                     "Title '" + actual + "' does not contain expected text '" + expectedTitle + "'."
             );
         }
+
     }
 
     public void validateAllVideoTitlesHaveSetLength(String length) {

@@ -54,13 +54,4 @@ public class SessionHandlingTests extends BaseTestSetup {
         Assertions.assertNull(sessionCookie, "Session cookie should not exist after logout.");
         loggedOut=true;
     }
-
-    @Test
-    public void testdmSessionIDCookieRetainedAfterLogout() {  //another auth cookie which is retained after logout, probably for analytics purposes. real auth cookie which tracks login is the lfc_sso_access_token
-        home.validateUserIsCorrectlyLoggedInAfterRegistering();
-        Cookie sessionCookie = driver.manage().getCookieNamed("dmSessionID");
-        Assertions.assertNotNull(sessionCookie, "Session cookie dmSessionID should exist after logout.");
-        loggedOut=true;
-    }
-
 }

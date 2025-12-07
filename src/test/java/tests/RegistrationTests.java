@@ -11,7 +11,7 @@ public class RegistrationTests extends BaseTestSetup {
 
 
     @Test
-    public void validRegistration() {
+    public void userIsLoggedInAfterValidRegistration() {
         home.clickSignIn();
         login.choseRegistrationPage();
         String email = RandomDataGenerator.generateEmail("gmail");
@@ -22,6 +22,20 @@ public class RegistrationTests extends BaseTestSetup {
                 gender, email, "United Kingdom", password, password, true);
         registration.finalizeRegistration(true);
         home.validateUserIsCorrectlyLoggedInAfterRegistering();
+    }
+
+    @Test
+    public void userIsAskedToVerifyMailAfterValidRegistration() {
+        home.clickSignIn();
+        login.choseRegistrationPage();
+        String email = RandomDataGenerator.generateEmail("gmail");
+        String password = RandomDataGenerator.generatePassword(10);
+        String gender = RandomDataGenerator.generateGender();
+        String birthDate = RandomDataGenerator.generateBirthdate(18, 30);
+        registration.fillRegistrationForm("Faris", "Colakovic", birthDate,
+                gender, email, "United Kingdom", password, password, true);
+        registration.finalizeRegistration(false);
+        registration.validateUserIsRedirectedToMailVerification();
     }
 
     @Test

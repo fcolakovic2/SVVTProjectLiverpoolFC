@@ -31,14 +31,16 @@ public class RegistrationPage {
     private final By requiredFieldError(String fieldName) {
         return By.xpath("//input[@name='" + fieldName + "']/parent::div/following-sibling::p[text()='This field is required']");
     }
+    private final By verifyMail = By.xpath("//h1[text()='Enter your email verification code']");
+    private final By inputMailCode = By.xpath("//input[@name='code']");
 
     public RegistrationPage(WebDriver driver) { this.driver = driver; }
 
-    public void finalizeRegistration(boolean correctRegistrationForm){
+    public void finalizeRegistration(boolean proceedBackToSite){
         WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(15));
         wait.until(ExpectedConditions.visibilityOfElementLocated(submitRegistration)).click();
 
-        if (correctRegistrationForm){
+        if (proceedBackToSite){
             wait.until(ExpectedConditions.visibilityOfElementLocated(logOutButtonAfterRegistration));
             wait.until(ExpectedConditions.elementToBeClickable(backToSiteButton)).click();
         }
@@ -194,6 +196,14 @@ public class RegistrationPage {
         WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(10));
         boolean errorVisible = wait.until(ExpectedConditions.visibilityOfElementLocated(passwordsNotMatchingError)).isDisplayed();
         Assertions.assertTrue(errorVisible);
+    }
+
+    public void validateUserIsRedirectedToMailVerification() {
+        WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(10));
+        boolean mailVerification = wait.until(ExpectedConditions.visibilityOfElementLocated(inputMailCode)).isDisplayed();
+        boolean verifyMailText = wait.until(ExpectedConditions.visibilityOfElementLocated(verifyMail)).isDisplayed();
+        Assertions.assertTrue(mailVerification);
+        Assertions.assertTrue(verifyMailText);
     }
 
     //endregion

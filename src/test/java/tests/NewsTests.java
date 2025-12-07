@@ -1,7 +1,6 @@
 package tests;
 
 import base.BaseTestSetup;
-import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
 public class NewsTests extends BaseTestSetup {
@@ -24,7 +23,7 @@ public class NewsTests extends BaseTestSetup {
     }
 
     @Test
-    public void openNewsPageAndValidateFilterForAllWomen() {
+    public void openNewsPageAndValidateFilterForWomen() {
         home.clickOnSection("News");
         news.openNewsSubSection("All News");
         news.validateCurrentUrl();
@@ -60,7 +59,7 @@ public class NewsTests extends BaseTestSetup {
     }
 
     @Test
-    public void openNewsPageAndValidateFilterForTickts() {
+    public void openNewsPageAndValidateFilterForTickets() {
         home.clickOnSection("News");
         news.openNewsSubSection("All News");
         news.validateCurrentUrl();

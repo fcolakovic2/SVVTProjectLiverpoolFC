@@ -56,7 +56,4 @@ public class UserDataUpdateTests extends BaseTestSetup{
         profile.clickUpdateButton();
         profile.validateInvalidPhoneNumberFieldError();
     }
-
-
-
 }

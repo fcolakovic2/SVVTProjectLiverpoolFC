@@ -17,37 +17,37 @@ public class LoginTests extends BaseTestSetup {
     }
 
     @Test
-    public void invalidPasswordShowsError() {
+    public void validLoginWithCaseInsensitiveMail() {
+        home.clickSignIn();
+        login.login("farisCOLAKovic00@gmail.com", "hBSBR!LKDsna1");
+        home.validateUserIsCorrectlyLoggedInAfterRegistering();
+    }
+
+    @Test
+    public void invalidPasswordFailsLogin() {
         home.clickSignIn();
         login.login("fariscolakovic00@gmail.com", "wrongpass");
         home.validateUserIsNotLoggedIn();
     }
 
     @Test
-    public void emptySpacesPasswordShowsError() {
+    public void emptySpacesPasswordFailsLogin() {
         home.clickSignIn();
         login.login("fariscolakovic00@gmail.com", "  ");
         home.validateUserIsNotLoggedIn();
     }
 
     @Test
-    public void invalidEmailShowsError() {
+    public void invalidEmailFailsLogin() {
         home.clickSignIn();
         login.login("fariscolakovic0@gmail.com", "hBSBR!LKDsna1");
         home.validateUserIsNotLoggedIn();
     }
 
     @Test
-    public void emptySpacesEmailShowsError() {
+    public void emptySpacesEmailFailsLogin() {
         home.clickSignIn();
         login.login("   ", "hBSBR!LKDsna1");
         home.validateUserIsNotLoggedIn();
-    }
-
-    @Test
-    public void navigatingToPasswordResetThroughLoginPage () {
-        home.clickSignIn();
-        login.clickForgetPassword();
-        login.validateUserIsOnResetPasswordPage();
     }
 }
