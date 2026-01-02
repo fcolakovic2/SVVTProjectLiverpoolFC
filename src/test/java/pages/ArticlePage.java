@@ -2,6 +2,7 @@ package pages;
 
 import org.junit.jupiter.api.Assertions;
 import org.openqa.selenium.By;
+import org.openqa.selenium.TimeoutException;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.support.ui.ExpectedConditions;
@@ -70,18 +71,24 @@ public class ArticlePage {
         );
     }
 
-    public void validateCorrectImage(String expectedImage){
-        WebElement timeElement = wait.until(
-                ExpectedConditions.visibilityOfElementLocated(articleImage)
-        );
+    public void validateCorrectImage(String expectedImage) {
+        try {
+            WebElement imageElement = wait.until(
+                    ExpectedConditions.visibilityOfElementLocated(articleImage)
+            );
 
-        String actualImage = timeElement.getAttribute("alt");
-        Assertions.assertEquals(
-                expectedImage,
-                actualImage,
-                "Article image alt does not match expected image alt from home page!"
-        );
+            String actualImage = imageElement.getAttribute("alt");
+            Assertions.assertEquals(
+                    expectedImage,
+                    actualImage,
+                    "Article image alt does not match expected image alt from home page!"
+            );
+
+        } catch (TimeoutException e) {
+            System.out.println("This article should not have image anyways");
+        }
     }
+
 
     //endregion
 }

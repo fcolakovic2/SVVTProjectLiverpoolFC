@@ -53,7 +53,7 @@ public class VideoPage {
     }
 
     public void loadMoreVideos(){
-        wait.until(ExpectedConditions.visibilityOfElementLocated(loadMoreButton)).click();
+        wait.until(ExpectedConditions.elementToBeClickable(loadMoreButton)).click();
     }
 
     public void openVideoSubSectionURL(String subSection){
