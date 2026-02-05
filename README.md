@@ -1,4 +1,4 @@
-SVVTProjectLiverpoolFC is a Java-based project developed as part of the SVVT (Software Verification, Validation and Testing) course.
+SVVTProjectLiverpoolFC is a Java-based project developed in Selenium.
 
 The project uses a Liverpool FC–themed domain to demonstrate core concepts of software verification, validation, and testing, including unit testing, integration testing, and requirement validation.
 
